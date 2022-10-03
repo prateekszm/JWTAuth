@@ -1,6 +1,5 @@
 package com.Auth.JwtAuth.model;
 
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -28,28 +27,27 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 @Table(name = "user")
 public class User implements UserDetails {
-    /**
-	 * Auto generated shit's
+	/**
+	 * this is user class that implements userDetails because spring wants
+	 * userDetails object to perform authentication and authorization
 	 */
 	private static final long serialVersionUID = 1L;
 
 	@Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Integer id;
 
-    @Column(name = "email",nullable = false,unique = true)
-    private String email;
-    
-   //add json ignore in DTO class
+	@Column(name = "email", nullable = false, unique = true)
+	private String email;
+
+	// add json ignore in DTO class
 	private String password;
 
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "email", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "role", referencedColumnName = "id"))
+	private Set<Role> roles = new HashSet<>();
 
-    @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    @JoinTable(name = "user_role",
-    joinColumns = @JoinColumn(name = "email",referencedColumnName = "id"),
-    inverseJoinColumns = @JoinColumn(name = "role",referencedColumnName = "id"))
-    private Set<Role> roles = new HashSet<>();
-    public Integer getId() {
+	public Integer getId() {
 		return id;
 	}
 
@@ -77,52 +75,49 @@ public class User implements UserDetails {
 		this.password = password;
 	}
 
+	public User() {
+	}
 
+	public User(Integer id, String email, String password) {
+		this.id = id;
+		this.email = email;
+		this.password = password;
+	}
 
-    public User() {
-    }
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		List<SimpleGrantedAuthority> authorities = this.roles.stream()
+				.map((role) -> new SimpleGrantedAuthority(role.getRole())).collect(Collectors.toList());
+		return authorities;
+	}
 
-    public User(Integer id, String email, String password) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-    }
+	@Override
+	public String getPassword() {
+		return this.password;
+	}
 
+	@Override
+	public String getUsername() {
+		return this.email;
+	}
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<SimpleGrantedAuthority> authorities = this.roles.stream().map((role)
-                -> new SimpleGrantedAuthority(role.getRole())).collect(Collectors.toList());
-        return  authorities;
-    }
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
 
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
 
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+	@Override
+	public boolean isEnabled() {
+		return true;
+	}
 }

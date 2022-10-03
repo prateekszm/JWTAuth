@@ -21,8 +21,9 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 
 /**
- * @author {Prateek Raj Kushwaha}
- *
+ * @author {Prateek Raj Kushwaha} Servlet filter that will run before hitting
+ *         the dispatcher Servlet contoller. to perform authorization and
+ *         authentication
  */
 @Component
 public class JWTAuthenticatioFilter extends OncePerRequestFilter {
@@ -32,11 +33,17 @@ public class JWTAuthenticatioFilter extends OncePerRequestFilter {
 	@Autowired
 	private JwtUtils jwtUtils;
 
+	/*
+	 * This internal filter will extract the token from header and validate the
+	 * token and then it will extract the username and and match the userName from
+	 * database and then it will set UsernamePasswordAuthenticationToken and it will
+	 * pass it to next Filter chain
+	 */
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		String requestToken = request.getHeader("Authorization");
-		//System.out.println(requestToken);
+		// System.out.println(requestToken);
 		String userEmail = null;
 		String token = null;
 		if (requestToken != null && requestToken.startsWith("Bearer ")) {
@@ -69,7 +76,7 @@ public class JWTAuthenticatioFilter extends OncePerRequestFilter {
 				System.out.println("Invalid Username or  token");
 			}
 
-		}else {
+		} else {
 			System.out.println("Username is null or context is not null");
 		}
 		filterChain.doFilter(request, response);

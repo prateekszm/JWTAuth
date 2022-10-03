@@ -10,7 +10,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-
+/*
+ * JWT utils class to perform task related to tokens this code is copied from JAVA BRAINS JWT video
+ */
 @Service
 public class JwtUtils {
 
